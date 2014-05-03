@@ -24,7 +24,7 @@ public class Communicator {
 	
 	/*Class Constructor*/ 
 	public Communicator() {
-		Lib.debug(flag, "Declaring communicator object");
+		//Lib.debug(flag, "Declaring communicator object");
 		speakerCount = 0;		// reset counts							
 		listenerCount = 0;					
 		doorLock = new Lock();	// instantiate lock 
@@ -49,20 +49,21 @@ public class Communicator {
 	 * 					3. sends out the 
 	 * */
 	public void speak(int word) {
-		Lib.debug(flag, "speak called");
-			
-		speakerCount++;				// increment speaker
+		//Lib.debug(flag, "speak called");
+	
 		doorLock.acquire();			// try to acquire lock, gets blocked if the lock is busy
+		speakerCount++;				// increment speaker
+		Lib.debug(flag, "speaker got lock");
 		message = word;	
 		
 		
-		if(listenerCount==0){	// if there are no listeners go to sleep.
-			Lib.debug(flag, "waiting for ");
-			listenerDoorMan.sleep();		
+		while(listenerCount==0){	// if there are no listeners go to sleep.
+			Lib.debug(flag, "waiting for listener");
+			listenerDoorMan.sleep();	
+			//speakerDoorman.sleep();
 		}
 		
 		listenerCount--;			// we pick up a listener, check him off
-				
 		speakerDoorman.wake();		//Wake up at most one thread sleeping on this condition variable.
 		doorLock.release(); 		// Atomically release this lock, allowing other threads to acquire it.
 	}
@@ -75,16 +76,19 @@ public class Communicator {
 	 */
 	
 	public int listen() {
-		Lib.debug(flag, "listen called");
+		//Lib.debug(flag, "listen called");
+	
 		doorLock.acquire();			// try to acquire lock, gets blocked if the lock is busy
 		listenerCount++;
-		listenerDoorMan.wake();			//Wake up at most one thread sleeping on this condition variable.
-
-		if(speakerCount==0){			// while there isnt any speakers,  
+		Lib.debug(flag, "listener got lock");
+		while(speakerCount==0){			// while there isnt any speakers,  
 			speakerDoorman.sleep();		// Atomically release the associated lock and go to 
 			//sleep on this condition variable until another thread wakes it using wake().
+			//listenerDoorMan.sleep();
+			Lib.debug(flag, "waiting for speaker");
 		}
 		speakerCount--;
+		listenerDoorMan.wake();			//Wake up at most one thread sleeping on this condition variable.
 		doorLock.release();				// release the lock for next process
 		return message;					// return the word that the speaker stored.
 	}
