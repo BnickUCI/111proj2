@@ -206,7 +206,7 @@ public class KThread {
 		}
 		// once this thread finishes
 		// set all the threads in the threadQueue back to a ready state.
-	
+
 //		while(threadQIterator.hasNext()){
 //			KThread kTemp = null; 
 //			threadQIterator.next();
@@ -215,7 +215,7 @@ public class KThread {
 		if(!threadQueue.isEmpty()){
 			KThread[] tempArray = (KThread[]) threadQueue.toArray(new KThread[threadQueue.size()]);
 			// String[] y = x.toArray(new String[0]);
-			
+
 			for(int i = 0; i < tempArray.length; i++){
 				System.out.println("Thread--" + tempArray[i].toString());
 				//tempArray[i].status = statusBlocked; 
@@ -463,20 +463,57 @@ public class KThread {
 		return priority;
 	}
 
+	private static class PingTest implements Runnable {
+		PingTest(int which) {
+			this.which = which;
+		}
+
+		public void run() {
+			for (int i = 0; i < 5; i++) {
+				System.out.println("*** thread " + which + " looped " + i
+						+ " times");
+				currentThread.yield();
+			}
+		}
+
+		private int which;
+	}
 
 	/**
 	 * Tests whether this module is working.
 	 */
 	public static void selfTest() {
-		KThreadTest.runTest();
+		
+		Lib.debug(dbgThread, "Enter KThread.selfTest");
+
+		//new KThread(new PingTest(1)).setName("Thread1").fork();
+		//new KThread(new PingTest(2)).setName("Thread1").fork();
+		
+		PingTest p1 = new PingTest(1);
+		PingTest p2 = new PingTest(2);
+		PingTest p3 = new PingTest(3);
+		
+		//new PingTest(0).run();
+		
+		KThread k1 = new KThread(p1);
+		KThread k2 = new KThread(p2);
+		KThread k3 = new KThread(p3);
+		
+		//k1.fork();
+		//k1.join();
+		//k1.join();
+		//k2.fork();
+		//k2.join();
+		k3.fork();
+		k1.fork();
+		k3.join();
+		k2.fork();
+		
 	}
 
 	/**
 	 * Tests whether this module is working - Simple Version
 	 */
-	public static void simpleSelfTest() {
-		KThreadSimpleTest.runTest();
-	}
 
 	private static final char dbgThread = 't';
 
