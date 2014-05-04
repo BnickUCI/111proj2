@@ -64,7 +64,8 @@ public class Communicator {
 		}
 		
 		listenerCount--;			// we pick up a listener, check him off
-		speakerDoorman.wake();		//Wake up at most one thread sleeping on this condition variable.
+		//speakerDoorman.wake();		//Wake up at most one thread sleeping on this condition variable.
+		speakerDoorman.wake();		// experiment
 		doorLock.release(); 		// Atomically release this lock, allowing other threads to acquire it.
 	}
 
@@ -77,7 +78,6 @@ public class Communicator {
 	
 	public int listen() {
 		//Lib.debug(flag, "listen called");
-	
 		doorLock.acquire();			// try to acquire lock, gets blocked if the lock is busy
 		listenerCount++;
 		Lib.debug(flag, "listener got lock");
@@ -88,7 +88,8 @@ public class Communicator {
 			Lib.debug(flag, "waiting for speaker");
 		}
 		speakerCount--;
-		listenerDoorMan.wake();			//Wake up at most one thread sleeping on this condition variable.
+		//listenerDoorMan.wake();			//Wake up at most one thread sleeping on this condition variable.
+		listenerDoorMan.wake();	
 		doorLock.release();				// release the lock for next process
 		return message;					// return the word that the speaker stored.
 	}

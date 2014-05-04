@@ -217,7 +217,7 @@ public class KThread {
 			// String[] y = x.toArray(new String[0]);
 
 			for(int i = 0; i < tempArray.length; i++){
-				System.out.println("Thread--" + tempArray[i].toString());
+				//System.out.println("Thread--" + tempArray[i].toString());
 				//tempArray[i].status = statusBlocked; 
 				tempArray[i].ready();
 			}
@@ -485,32 +485,66 @@ public class KThread {
 	public static void selfTest() {
 		
 		Lib.debug(dbgThread, "Enter KThread.selfTest");
-
+		//new PingTest(0).run();
 		//new KThread(new PingTest(1)).setName("Thread1").fork();
 		//new KThread(new PingTest(2)).setName("Thread1").fork();
 		
-		PingTest p1 = new PingTest(1);
-		PingTest p2 = new PingTest(2);
-		PingTest p3 = new PingTest(3);
+		// 3 Threads ready go. 
+//		PingTest p1 = new PingTest(1);
+//		PingTest p2 = new PingTest(2);
+//		PingTest p3 = new PingTest(3);
+
+		Communicator c = new Communicator();
 		
-		//new PingTest(0).run();
+
+
 		
-		KThread k1 = new KThread(p1);
-		KThread k2 = new KThread(p2);
-		KThread k3 = new KThread(p3);
+		new KThread(new Listener(c)).fork();
+		new KThread(new Speaker(2222,c)).fork();
 		
-		//k1.fork();
-		//k1.join();
-		//k1.join();
-		//k2.fork();
-		//k2.join();
-		k3.fork();
-		k1.fork();
-		k3.join();
-		k2.fork();
+		new KThread(new Listener(c)).fork();
+		new KThread(new Speaker(3333,c)).fork();
 		
+	
+		new KThread(new Speaker(4444,c)).fork();
+		new KThread(new Listener(c)).fork();
+		
+		new KThread(new Listener(c)).fork();
+		new KThread(new Listener(c)).fork();
+		new KThread(new Listener(c)).fork();
 	}
 
+
+	/* Used to simulate a process speaking*/
+	private static class Speaker implements Runnable {
+		private Communicator c1;
+		private int tempWord; 
+		Speaker(int word, Communicator c){
+			this.c1 = c;
+			this.tempWord = word;
+		}
+
+		public void run() {
+			System.out.println("Shipping out " + tempWord);
+			c1.speak(tempWord);
+		}
+	}
+	
+	private static class Listener implements Runnable {
+		private Communicator c1; 
+		private int word;
+		Listener(Communicator c) {
+			//word = 0; 
+			this.c1 = c;
+		}
+		
+		public void run() {
+			word = c1.listen();
+			System.out.println("I picked up word: " + word);
+		}
+	}
+	
+	
 	/**
 	 * Tests whether this module is working - Simple Version
 	 */
@@ -558,4 +592,5 @@ public class KThread {
 	private static LinkedList threadQueue = null; 
 	private static ListIterator threadQIterator = null;
 	private static Array tempArray; 
+	
 }
